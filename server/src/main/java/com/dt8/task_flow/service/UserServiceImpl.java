@@ -1,5 +1,6 @@
 package com.dt8.task_flow.service;
 
+import com.dt8.task_flow.entity.Project;
 import com.dt8.task_flow.entity.User;
 import com.dt8.task_flow.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -28,8 +29,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<User> getUserById(long id) { return userRepository.findById(id); }
+
+    @Override
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    @Override
+    public List<Project> getProjectsByUserId(long userId) {
+        return userRepository.findProjectsByUserId(userId);
+    }
+
+    @Override
+    @Transactional
+    public User createUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void updateUser(User user) {
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(User user) {
+        userRepository.delete(user);
     }
 
     @Override
@@ -52,17 +80,5 @@ public class UserServiceImpl implements UserService {
     public Optional<User> validUsernameAndPassword(String username, String password) {
         return getUserByUsername(username)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()));
-    }
-
-    @Override
-    @Transactional
-    public User saveUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
-    }
-
-    @Override
-    public void deleteUser(User user) {
-        userRepository.delete(user);
     }
 }

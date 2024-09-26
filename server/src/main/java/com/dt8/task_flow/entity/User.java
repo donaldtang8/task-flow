@@ -2,6 +2,9 @@ package com.dt8.task_flow.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name="user")
 public class User {
@@ -19,6 +22,19 @@ public class User {
     private String password;
 
     private String role;
+
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Project> ownedProjects;
+
+//    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "users_projects",
+            joinColumns = @JoinColumn(name="user_id"),
+            inverseJoinColumns = @JoinColumn(name="project_id")
+    )
+    private List<Project> projects;
 
     public User() {
     }
@@ -82,5 +98,47 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public List<Project> getOwnedProjects() {
+        return ownedProjects;
+    }
+
+    public void setOwnedProjects(List<Project> ownedProjects) {
+        this.ownedProjects = ownedProjects;
+    }
+
+    public void addOwnedProjects(Project project) {
+        if (ownedProjects == null) {
+            ownedProjects = new ArrayList<>();
+        }
+        ownedProjects.add(project);
+    }
+
+    public void removeOwnedProjects(Project project) {
+        if (ownedProjects != null) {
+            ownedProjects.remove(project);
+        }
+    }
+
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
+    }
+
+    public void addProject(Project project) {
+        if (projects == null) {
+            projects = new ArrayList<>();
+        }
+        projects.add(project);
+    }
+
+    public void removeProject(Project project) {
+        if (projects != null) {
+            projects.remove(project);
+        }
     }
 }

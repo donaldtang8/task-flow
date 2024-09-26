@@ -1,6 +1,5 @@
 package com.dt8.task_flow.rest;
 
-import com.dt8.task_flow.entity.User;
 import com.dt8.task_flow.mapper.UserMapper;
 import com.dt8.task_flow.rest.dto.UserDto;
 import com.dt8.task_flow.security.CustomUserDetails;
@@ -20,8 +19,8 @@ public class UserController {
 
     @Autowired
     public UserController(UserService userService, UserMapper userMapper) {
-        userService = userService;
-        userMapper = userMapper;
+        this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     @GetMapping("/me")

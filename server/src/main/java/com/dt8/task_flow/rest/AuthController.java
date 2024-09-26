@@ -48,7 +48,7 @@ public class AuthController {
             throw new RuntimeException(String.format("Email %s has already been used", signupRequest.getEmail()));
         }
 
-        User user = userService.saveUser(
+        User user = userService.createUser(
                 new User(
                         email,
                         firstName,
