@@ -29,18 +29,13 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Project getProjectById(long projectId) {
-        return null;
+        return projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
     }
 
     @Override
     @Transactional
     public Project createProject(Project project) {
         return projectRepository.save(project);
-    }
-
-    @Override
-    public Project updateProjectById(long projectId, Project project) {
-        return null;
     }
 
     @Override
@@ -53,12 +48,27 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public void removeUserFromProjectById(long projectId, long userId) {
-
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+        User userToRemove = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        project.removeUser(userToRemove);
+        projectRepository.save(project);
     }
 
     @Override
-    public void deleteProjectById(long projectId) {
+    public Project updateProjectById(long projectId, Project updatedProject) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+        project.setTitle(updatedProject.getTitle());
+        project.setDescription(updatedProject.getDescription());
+        project.setStatus(updatedProject.getStatus());
+        projectRepository.save(project);
+        return project;
+    }
 
+    @Override
+    @Transactional
+    public void deleteProjectById(long projectId) {
+        projectRepository.deleteById(projectId);
     }
 }

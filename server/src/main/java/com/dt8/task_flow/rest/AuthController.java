@@ -26,9 +26,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-        Optional<User> userObj = userService.validUsernameAndPassword(loginRequest.getUsername(), loginRequest.getPassword());
-        if (userObj.isPresent()) {
-            User user = userObj.get();
+        User user = userService.validUsernameAndPassword(loginRequest.getUsername(), loginRequest.getPassword());
+        if (user != null) {
             return ResponseEntity.ok(new AuthResponse(user.getId(), user.getFirstName(), user.getLastName(), user.getRole()));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

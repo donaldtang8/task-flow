@@ -12,11 +12,11 @@ public interface ProjectService {
 
     Project createProject(Project project);
 
-    Project updateProjectById(long projectId, Project project);
-
     void addUserToProjectById(long projectId, long userId);
 
     void removeUserFromProjectById(long projectId, long userId);
+
+    Project updateProjectById(long projectId, Project udpatedProject);
 
     void deleteProjectById(long projectId);
 }

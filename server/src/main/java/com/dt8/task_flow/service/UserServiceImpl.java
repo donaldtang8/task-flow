@@ -29,16 +29,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(long id) { return userRepository.findById(id); }
-
-    @Override
-    public Optional<User> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public User getUserById(long id) {
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("No user found"));
     }
 
     @Override
-    public List<Project> getProjectsByUserId(long userId) {
-        return userRepository.findProjectsByUserId(userId);
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("No user found"));
+    }
+
+    @Override
+    public List<Project> getProjectsByUserId(long id) {
+        return userRepository.findProjectsByUserId(id);
     }
 
     @Override
@@ -72,13 +74,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User validateAndGetUserByUsername(String username) {
-        return getUserByUsername(username)
-                .orElseThrow(() -> new RuntimeException(String.format("User with username %s not found", username)));
+        return getUserByUsername(username);
     }
 
     @Override
-    public Optional<User> validUsernameAndPassword(String username, String password) {
-        return getUserByUsername(username)
-                .filter(user -> passwordEncoder.matches(password, user.getPassword()));
+    public User validUsernameAndPassword(String username, String password) {
+        User user = getUserByUsername(username);
+        if (passwordEncoder.matches(password, user.getPassword())) {
+            return user;
+        }
+        return null;
     }
 }

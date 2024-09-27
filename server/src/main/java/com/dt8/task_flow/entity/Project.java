@@ -45,6 +45,10 @@ public class Project {
         this.status = ProjectStatus.NONE;
     }
 
+    public long getId() {
+        return id;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -98,6 +102,12 @@ public class Project {
             users = new ArrayList<>();
         }
         users.add(user);
+    }
+
+    public void removeUser(User user) {
+        if (users != null) {
+            users.remove(user);
+        }
     }
 }
 

@@ -9,11 +9,11 @@ import java.util.Optional;
 public interface UserService {
     List<User> getUsers();
 
-    Optional<User> getUserById(long id);
+    User getUserById(long id);
 
-    Optional<User> getUserByUsername(String username);
+    User getUserByUsername(String username);
 
-    List<Project> getProjectsByUserId(long userId);
+    List<Project> getProjectsByUserId(long id);
 
     User createUser(User user);
 
@@ -27,5 +27,5 @@ public interface UserService {
 
     User validateAndGetUserByUsername(String username);
 
-    Optional<User> validUsernameAndPassword(String username, String password);
+    User validUsernameAndPassword(String username, String password);
 }

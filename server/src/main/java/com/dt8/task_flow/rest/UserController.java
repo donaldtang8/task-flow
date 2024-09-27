@@ -23,6 +23,11 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
+    @GetMapping("/{id}")
+    public UserDto getUserById(@PathVariable long id) {
+        return userMapper.toUserDto(userService.getUserById(id));
+    }
+
     @GetMapping("/me")
     public UserDto getCurrentUser(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return userMapper.toUserDto(userService.validateAndGetUserByUsername(currentUser.getUsername()));
@@ -30,16 +35,10 @@ public class UserController {
 
     @GetMapping("/")
     public List<UserDto> getUsers() {
-        System.out.println("Getting users");
         return userService
                 .getUsers()
                 .stream()
                 .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
-    }
-
-    @GetMapping("/{username}")
-    public UserDto getUser(@PathVariable String username) {
-        return userMapper.toUserDto(userService.validateAndGetUserByUsername(username));
     }
 }
