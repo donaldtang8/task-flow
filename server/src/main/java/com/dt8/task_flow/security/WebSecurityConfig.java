@@ -38,11 +38,10 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+                        .requestMatchers("/api/projects").hasAnyAuthority(ADMIN, USER) // Require ADMIN or USER role for /api/**
                         .requestMatchers("/auth/**").permitAll() // Allow all requests to /auth/**
-                        .requestMatchers("/api/**").authenticated() // Require ADMIN or USER role for /api/**
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
