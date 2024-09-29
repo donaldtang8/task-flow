@@ -4,33 +4,36 @@ import com.dt8.task_flow.entity.User;
 import com.dt8.task_flow.rest.dto.AuthResponse;
 import com.dt8.task_flow.rest.dto.LoginRequest;
 import com.dt8.task_flow.rest.dto.SignupRequest;
+import com.dt8.task_flow.security.TokenProvider;
 import com.dt8.task_flow.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import javax.management.RuntimeErrorException;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
     private UserService userService;
+    private PasswordEncoder passwordEncoder;
+    private AuthenticationManager authenticationManager;
+    private TokenProvider tokenProvider;
 
     @Autowired
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, TokenProvider tokenProvider) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.tokenProvider = tokenProvider;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-        User user = userService.validUsernameAndPassword(loginRequest.getUsername(), loginRequest.getPassword());
-        if (user != null) {
-            return ResponseEntity.ok(new AuthResponse(user.getId(), user.getFirstName(), user.getLastName(), user.getRole()));
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    @PostMapping("/authenticate")
+    public AuthResponse login(@Valid @RequestBody LoginRequest loginRequest) {
+        String token = authenticateAndGetToken(loginRequest.getUsername(), loginRequest.getPassword());
+        return new AuthResponse(token);
     }
 
     @PostMapping("/signup")
@@ -40,23 +43,22 @@ public class AuthController {
         String lastName = signupRequest.getLastName();
         String username = signupRequest.getUsername();
         String password = signupRequest.getPassword();
+
         if (userService.hasUserWithUsername(username)) {
-            throw new RuntimeException(String.format("Username %s has already been used", signupRequest.getUsername()));
+            throw new RuntimeException(String.format("Username %s already been used", username));
         }
-        if (userService.hasUserWithEmail(email)) {
-            throw new RuntimeException(String.format("Email %s has already been used", signupRequest.getEmail()));
+        if (userService.hasUserWithEmail(signupRequest.getEmail())) {
+            throw new RuntimeException(String.format("Email %s already been used", email));
         }
 
-        User user = userService.createUser(
-                new User(
-                        email,
-                        firstName,
-                        lastName,
-                        username,
-                        password,
-                        "USER"
-                )
-        );
-        return new AuthResponse(user.getId(), user.getFirstName(), user.getLastName(), user.getRole());
+        userService.createUser(new User(email, firstName, lastName, username, passwordEncoder.encode(password), "USER"));
+
+        String token = authenticateAndGetToken(username, password);
+        return new AuthResponse(token);
+    }
+
+    private String authenticateAndGetToken(String username, String password) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        return tokenProvider.generate(authentication);
     }
 }

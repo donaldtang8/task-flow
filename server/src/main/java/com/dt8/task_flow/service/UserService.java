@@ -26,6 +26,4 @@ public interface UserService {
     boolean hasUserWithEmail(String email);
 
     User validateAndGetUserByUsername(String username);
-
-    User validUsernameAndPassword(String username, String password);
 }

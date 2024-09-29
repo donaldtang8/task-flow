@@ -9,18 +9,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -46,7 +43,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User createUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -75,14 +71,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public User validateAndGetUserByUsername(String username) {
         return getUserByUsername(username);
-    }
-
-    @Override
-    public User validUsernameAndPassword(String username, String password) {
-        User user = getUserByUsername(username);
-        if (passwordEncoder.matches(password, user.getPassword())) {
-            return user;
-        }
-        return null;
     }
 }

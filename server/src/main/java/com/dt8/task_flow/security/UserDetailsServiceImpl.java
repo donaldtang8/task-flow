@@ -24,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        User user = userService.getUserByUsername(username).orElseThrow(() -> new RuntimeException(String.format("Username %s not found", username)));
+        User user = userService.getUserByUsername(username);
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole()));
         return mapUserToCustomUserDetails(user, authorities);
     }

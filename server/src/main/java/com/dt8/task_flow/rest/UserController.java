@@ -41,4 +41,9 @@ public class UserController {
                 .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable long id) {
+        userService.deleteUser(userService.getUserById(id));
+    }
 }

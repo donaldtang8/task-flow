@@ -9,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,31 +22,30 @@ public class TaskFlowApplication {
 	}
 
 	@Bean
-	public CommandLineRunner commandLineRunner(UserService userService, ProjectService projectService) {
+	public CommandLineRunner commandLineRunner(UserService userService, ProjectService projectService, PasswordEncoder passwordEncoder) {
 		return runner -> {
-			createUser(userService);
+			createUser(userService, passwordEncoder);
 			createProject(userService, projectService);
 			getProjectsByOwnerId(projectService);
 			createNewUserAndAddToProject(userService, projectService);
-			deleteProject(projectService);
+//			deleteProject(projectService);
 			getProjectsByUserId(userService, 2);
 		};
 	}
 
-	public void createUser(UserService userService) {
-		User newUser = new User("admin@email.com", "admin", "admin", "admin", "test123", "ADMIN");
+	public void createUser(UserService userService, PasswordEncoder passwordEncoder) {
+		User newUser = new User("admin@email.com", "admin", "admin", "admin", passwordEncoder.encode("test123"), "ADMIN");
 		userService.createUser(newUser);
 	 }
 
 	public void createProject(UserService userService, ProjectService projectService) {
-		Optional<User> projectOwner = userService.getUserByUsername("admin");
-		if (projectOwner.isPresent()) {
-			User owner = projectOwner.get();
+		User projectOwner = userService.getUserByUsername("admin");
+		if (projectOwner != null) {
 			Project newProject = new Project("Test project", "Test description");
-			newProject.setOwner(owner);
+			newProject.setOwner(projectOwner);
 			projectService.createProject(newProject);
 			Project newProject2 = new Project("Test project 2", "Test description 2");
-			newProject2.setOwner(owner);
+			newProject2.setOwner(projectOwner);
 			projectService.createProject(newProject2);
 		}
 	}

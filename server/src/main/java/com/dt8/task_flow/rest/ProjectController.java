@@ -36,6 +36,22 @@ public class ProjectController {
         return projectMapper.toProjectDto(project);
     }
 
+    @GetMapping("/user/{id}")
+    public List<ProjectDto> getProjectsByUserId(@PathVariable long id) {
+        List<Project> usersProjects = userService.getProjectsByUserId(id);
+        usersProjects.addAll(projectService.getProjectsByOwnerId(id));
+        return usersProjects.stream()
+                .map(projectMapper::toProjectDto)
+                .collect(Collectors.toList());
+    }
+
+    @PostMapping("/")
+    public ProjectDto createProject(@Valid @RequestBody CreateProjectRequest createProjectRequest, @AuthenticationPrincipal CustomUserDetails currentUser, UserService userService) {
+        Project projectToCreate = projectMapper.toProject(createProjectRequest, currentUser, userService);
+        Project project = projectService.createProject(projectToCreate);
+        return projectMapper.toProjectDto(project);
+    }
+
     @PutMapping("/id/{id}/add/{userId}")
     public void addUserToProjectById(@PathVariable long id, @PathVariable long userId) {
         projectService.addUserToProjectById(id, userId);
@@ -56,21 +72,5 @@ public class ProjectController {
     @DeleteMapping("/id/{id}")
     public void deleteProject(@PathVariable long id) {
         projectService.deleteProjectById(id);
-    }
-
-    @GetMapping("/user/{id}")
-    public List<ProjectDto> getProjectsByUserId(@PathVariable long id) {
-        List<Project> usersProjects = userService.getProjectsByUserId(id);
-        usersProjects.addAll(projectService.getProjectsByOwnerId(id));
-        return usersProjects.stream()
-                .map(projectMapper::toProjectDto)
-                .collect(Collectors.toList());
-    }
-
-    @PostMapping("/")
-    public ProjectDto createProject(@Valid @RequestBody CreateProjectRequest createProjectRequest, @AuthenticationPrincipal CustomUserDetails currentUser, UserService userService) {
-        Project projectToCreate = projectMapper.toProject(createProjectRequest, currentUser, userService);
-        Project project = projectService.createProject(projectToCreate);
-        return projectMapper.toProjectDto(project);
     }
 }
