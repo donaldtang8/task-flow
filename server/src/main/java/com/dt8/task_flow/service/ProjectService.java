@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface ProjectService {
     List<Project> getProjectsByOwnerId(long ownerId);
 
-    Project getProjectById(long projectId);
+    Optional<Project> getProjectById(long projectId);
 
     Project createProject(Project project);
 

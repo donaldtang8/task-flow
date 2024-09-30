@@ -8,6 +8,7 @@ import com.dt8.task_flow.security.TokenProvider;
 import com.dt8.task_flow.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,13 +32,13 @@ public class AuthController {
     }
 
     @PostMapping("/authenticate")
-    public AuthResponse login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         String token = authenticateAndGetToken(loginRequest.getUsername(), loginRequest.getPassword());
-        return new AuthResponse(token);
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 
     @PostMapping("/signup")
-    public AuthResponse signUp(@Valid @RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<AuthResponse> signUp(@Valid @RequestBody SignupRequest signupRequest) {
         String email = signupRequest.getEmail();
         String firstName = signupRequest.getFirstName();
         String lastName = signupRequest.getLastName();
@@ -54,7 +55,7 @@ public class AuthController {
         userService.createUser(new User(email, firstName, lastName, username, passwordEncoder.encode(password), "USER"));
 
         String token = authenticateAndGetToken(username, password);
-        return new AuthResponse(token);
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 
     private String authenticateAndGetToken(String username, String password) {

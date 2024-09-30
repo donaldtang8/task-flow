@@ -6,6 +6,7 @@ import com.dt8.task_flow.repository.ProjectRepository;
 import com.dt8.task_flow.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,8 +29,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Project getProjectById(long projectId) {
-        return projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+    public Optional<Project> getProjectById(long projectId) {
+        return projectRepository.findById(projectId);
     }
 
     @Override
@@ -57,6 +58,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public Project updateProjectById(long projectId, Project updatedProject) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
         project.setTitle(updatedProject.getTitle());

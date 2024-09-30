@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,8 +32,11 @@ public class ProjectMapperImpl implements ProjectMapper {
             return null;
         }
         Project project = new Project(createProjectRequest.getTitle(), createProjectRequest.getDescription());
-        User owner = userService.getUserById(currentUser.getId());
-        project.setOwner(owner);
+        Optional<User> ownerOptional = userService.getUserById(currentUser.getId());
+        if (ownerOptional.isEmpty()) {
+            throw new RuntimeException("No user found");
+        }
+        project.setOwner(ownerOptional.get());
         return project;
     }
 
@@ -43,7 +47,11 @@ public class ProjectMapperImpl implements ProjectMapper {
         }
         Project project = new Project(updateProjectRequest.getTitle(), updateProjectRequest.getDescription());
         project.setStatus(updateProjectRequest.getStatus());
-        project.setOwner(userService.getUserById(updateProjectRequest.getOwnerId()));
+        Optional<User> ownerOptional = userService.getUserById(updateProjectRequest.getOwnerId());
+        if (ownerOptional.isEmpty()) {
+            throw new RuntimeException("No user found");
+        }
+        project.setOwner(ownerOptional.get());
         return project;
     }
 
