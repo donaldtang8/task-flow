@@ -20,10 +20,13 @@ public class UpdateTaskRequest {
     private TaskStatus status;
 
     @NotBlank
-    private User assignee;
+    private long assignee;
 
     @NotBlank
-    private User assigner;
+    private long assigner;
+
+    @NotBlank
+    private long createdBy;
 
     @NotBlank
     private LocalDateTime targetDate;
@@ -58,20 +61,28 @@ public class UpdateTaskRequest {
         this.status = status;
     }
 
-    public User getAssignee() {
+    public long getAssignee() {
         return assignee;
     }
 
-    public void setAssignee(User assignee) {
+    public void setAssignee(long assignee) {
         this.assignee = assignee;
     }
 
-    public User getAssigner() {
+    public long getAssigner() {
         return assigner;
     }
 
-    public void setAssigner(User assigner) {
+    public void setAssigner(long assigner) {
         this.assigner = assigner;
+    }
+
+    public long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(long createdBy) {
+        this.createdBy = createdBy;
     }
 
     public LocalDateTime getTargetDate() {

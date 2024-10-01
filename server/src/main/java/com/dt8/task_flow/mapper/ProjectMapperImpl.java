@@ -16,11 +16,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ProjectMapperImpl implements ProjectMapper {
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
 
     @Autowired
     public ProjectMapperImpl(UserMapper userMapper) {

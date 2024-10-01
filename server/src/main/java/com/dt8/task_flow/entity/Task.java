@@ -41,11 +41,10 @@ public class Task {
 
     public Task() {}
 
-    public Task(String title, String description, User createdBy) {
+    public Task(String title, String description) {
         this.title = title;
         this.description = description;
         this.status = TaskStatus.NONE;
-        this.createdBy = createdBy;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -108,6 +107,10 @@ public class Task {
 
     public User getCreatedBy() {
         return createdBy;
+    }
+
+    public void setCreatedBy(User user) {
+        this.createdBy = user;
     }
 
     public LocalDateTime getTargetDate() {
