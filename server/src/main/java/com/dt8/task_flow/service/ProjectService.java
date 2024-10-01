@@ -16,6 +16,10 @@ public interface ProjectService {
 
     void removeUserFromProjectById(long projectId, long userId);
 
+    void addTaskToProjectById(long projectId, long taskId);
+
+    void removeTaskFromProjectById(long projectId, long taskId);
+
     Project updateProjectById(long projectId, Project udpatedProject);
 
     void deleteProjectById(long projectId);
