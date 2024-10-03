@@ -21,6 +21,8 @@ public class Project {
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;
 
+    private LocalDateTime targetDate;
+
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
@@ -49,6 +51,8 @@ public class Project {
         this.title = title;
         this.description = description;
         this.status = ProjectStatus.NONE;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     public long getId() {
@@ -77,6 +81,14 @@ public class Project {
 
     public void setStatus(ProjectStatus status) {
         this.status = status;
+    }
+
+    public LocalDateTime getTargetDate() {
+        return targetDate;
+    }
+
+    public void setTargetDate(LocalDateTime targetDate) {
+        this.targetDate = targetDate;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -136,7 +148,9 @@ public class Project {
         if (users == null) {
             users = new ArrayList<>();
         }
-        users.add(user);
+        if (!users.contains(user)) {
+            users.add(user);
+        }
     }
 
     public void removeUser(User user) {

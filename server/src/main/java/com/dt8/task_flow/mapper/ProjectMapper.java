@@ -8,9 +8,9 @@ import com.dt8.task_flow.security.CustomUserDetails;
 import com.dt8.task_flow.service.UserService;
 
 public interface ProjectMapper {
-    Project toProject(CreateProjectRequest createProjectRequest, CustomUserDetails customUserDetails, UserService userService);
+    Project toProject(CreateProjectRequest createProjectRequest);
 
-    Project toProject(UpdateProjectRequest updateProjectRequest, UserService userService);
+    Project toProject(UpdateProjectRequest updateProjectRequest);
 
     ProjectDto toProjectDto(Project project);
 }

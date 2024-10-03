@@ -1,32 +1,35 @@
 package com.dt8.task_flow.rest.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import com.dt8.task_flow.entity.ProjectStatus;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+import java.time.LocalDateTime;
 
 public class CreateProjectRequest {
-    @Min(value=3, message="Title must be at least 3 characters long")
+    @Size(min=3, message="Title must be at least 3 characters long")
     private String title;
 
-    @Min(value=10, message="Description must be at least 10 characters long")
+    @NotBlank
     private String description;
 
-    @NotBlank
-    private long ownerId;
+    private ProjectStatus status;
+
+    private LocalDateTime targetDate;
 
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public ProjectStatus getStatus() {
+        return status;
+    }
+
+    public LocalDateTime getTargetDate() {
+        return targetDate;
     }
 }

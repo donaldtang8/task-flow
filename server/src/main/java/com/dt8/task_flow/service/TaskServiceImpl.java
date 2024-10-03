@@ -2,11 +2,8 @@ package com.dt8.task_flow.service;
 
 import com.dt8.task_flow.entity.Project;
 import com.dt8.task_flow.entity.Task;
-import com.dt8.task_flow.entity.User;
 import com.dt8.task_flow.repository.TaskRepository;
-import com.dt8.task_flow.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,13 +15,11 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final ProjectService projectService;
 
-    private final UserService userService;
 
     @Autowired
-    public TaskServiceImpl(TaskRepository taskRepository, ProjectService projectService, UserService userService) {
+    public TaskServiceImpl(TaskRepository taskRepository, ProjectService projectService) {
         this.taskRepository = taskRepository;
         this.projectService = projectService;
-        this.userService = userService;
     }
 
     @Override
@@ -66,19 +61,22 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void deleteTaskById(long taskId) {
-        Optional<Task> taskOptional = taskRepository.findById(taskId);
-        if (taskOptional.isPresent()) {
-            taskRepository.deleteById(taskId);
-        }
+        taskRepository.deleteById(taskId);
+    }
+
+    @Override
+    public Task validateAndGetTaskById(long taskId) {
+        Optional<Task> taskOptional = getTaskById(taskId);
+        return taskOptional.orElse(null);
     }
 
     // checks if user has permission to make changes to the task
     // returns true if user is part of the same project that task is in
+    @Override
     public boolean userHasTaskPermission(Task task) {
         if (task != null) {
             Project project = task.getProject();
-            User user = userService.getCurrentUser();
-            return projectService.userInProject(user, project);
+            return projectService.userHasProjectPermission(project);
         }
         return false;
     }

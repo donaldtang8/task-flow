@@ -16,15 +16,18 @@ import java.util.Optional;
 @Service
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
-    private final UserRepository userRepository;
 
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
+
+    private final UserService userService;
 
     @Autowired
-    public ProjectServiceImpl(ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, UserRepository userRepository, UserService userService) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
+        this.userService = userService;
     }
 
     @Override
@@ -45,44 +48,40 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    public void addUserToProjectById(long projectId, long userId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
-        User userToAdd = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        project.addUser(userToAdd);
+    public Project addUserToProjectById(Project project, User user) {
+        project.addUser(user);
         projectRepository.save(project);
+        return project;
     }
 
     @Override
     @Transactional
-    public void removeUserFromProjectById(long projectId, long userId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
-        User userToRemove = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        project.removeUser(userToRemove);
+    public Project removeUserFromProjectById(Project project, User user) {
+        project.removeUser(user);
         projectRepository.save(project);
+        return project;
     }
 
     @Override
     @Transactional
-    public void addTaskToProjectById(long projectId, long taskId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
-        Task taskToAdd = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
-        project.addTask(taskToAdd);
+    public Project addTaskToProjectById(Project project, Task task) {
+        project.addTask(task);
         projectRepository.save(project);
+        return project;
     }
 
     @Override
     @Transactional
-    public void removeTaskFromProjectById(long projectId, long taskId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
-        Task taskToRemove = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
-        project.removeTask(taskToRemove);
+    public Project removeTaskFromProjectById(Project project, Task task) {
+        project.removeTask(task);
         projectRepository.save(project);
+        return project;
     }
 
     @Override
     @Transactional
     public Project updateProjectById(long projectId, Project updatedProject) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+        Project project = projectRepository.findById(projectId).get();
         project.setTitle(updatedProject.getTitle());
         project.setDescription(updatedProject.getDescription());
         project.setStatus(updatedProject.getStatus());
@@ -97,13 +96,17 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public boolean userInProject(User user, Project project) {
-        System.out.println("User is:");
-        System.out.println(user);
-        System.out.println("Project is:");
-        System.out.println(project);
-        System.out.println(project.getUsers());
-        System.out.println(project.getOwner());
-        return project.getUsers().contains(user) || project.getOwner().equals(user);
+    public Project validateAndGetProjectById(long projectId) {
+        Optional<Project> projectOptional = getProjectById(projectId);
+        return projectOptional.orElse(null);
+    }
+
+    @Override
+    public boolean userHasProjectPermission(Project project) {
+        User user = userService.getCurrentUser();
+        if (project != null) {
+            return project.getUsers().contains(user) || project.getOwner().equals(user);
+        }
+        return false;
     }
 }

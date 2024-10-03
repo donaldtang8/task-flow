@@ -30,8 +30,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(long id) {
-        return userRepository.findById(id);
+    public Optional<User> getUserById(long userId) {
+        return userRepository.findById(userId);
     }
 
     @Override
@@ -40,8 +40,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Project> getProjectsByUserId(long id) {
-        return userRepository.findProjectsByUserId(id);
+    public List<Project> getProjectsByUserId(long userId) {
+        return userRepository.findProjectsByUserId(userId);
     }
 
     @Override
@@ -75,6 +75,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User validateAndGetUserByUsername(String username) {
         return getUserByUsername(username);
+    }
+
+    @Override
+    public User validateAndGetUserById(long userId) {
+        Optional<User> userOptional = getUserById(userId);
+        return userOptional.orElse(null);
     }
 
     @Override

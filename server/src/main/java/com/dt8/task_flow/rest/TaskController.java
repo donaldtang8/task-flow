@@ -28,50 +28,34 @@ public class TaskController {
 
     private final TaskMapper taskMapper;
     private final TaskService taskService;
-    private final UserService userService;
     private final ProjectService projectService;
 
     @Autowired
-    public TaskController(TaskMapper taskMapper, TaskService taskService, UserService userService, ProjectService projectService) {
+    public TaskController(TaskMapper taskMapper, TaskService taskService, ProjectService projectService) {
         this.taskMapper = taskMapper;
         this.taskService = taskService;
-        this.userService = userService;
         this.projectService = projectService;
     }
 
     @GetMapping("/id/{id}")
     public ResponseEntity<TaskDto> getTaskById(@PathVariable long id, @AuthenticationPrincipal CustomUserDetails currentUser) {
-        Optional<User> selfUserOptional = userService.getUserById(currentUser.getId());
-        Optional<Task> taskOptional = taskService.getTaskById(id);
-
-        if (selfUserOptional.isPresent() && taskOptional.isPresent()) {
-            User selfUser = selfUserOptional.get();
-            Task task = taskOptional.get();
-
-            if (projectService.userInProject(selfUser, task.getProject())) {
-                return ResponseEntity.ok(taskMapper.toTaskDto(task));
-            }
-            else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
+        Task task = taskService.validateAndGetTaskById(id);
+        if (task != null && taskService.userHasTaskPermission(task)) {
+            return ResponseEntity.ok(taskMapper.toTaskDto(task));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
-    
+
     @GetMapping("/project/{id}")
     public ResponseEntity<List<TaskDto>> getTasksByProjectId(@PathVariable long id, @AuthenticationPrincipal CustomUserDetails currentUser) {
-        Optional<Project> projectOptional = projectService.getProjectById(id);
-        Optional<User> userOptional = userService.getUserById(currentUser.getId());
-        if (projectOptional.isPresent() && userOptional.isPresent()) {
-            if (projectService.userInProject(userOptional.get(), projectOptional.get())) {
-                List<Task> projectTasks = taskService.getTasksByProjectId(id);
-                return ResponseEntity.ok(
-                        projectTasks.stream()
-                                .map(taskMapper::toTaskDto)
-                                .collect(Collectors.toList())
-                );
-            }
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        Project project = projectService.validateAndGetProjectById(id);
+        if (project != null && projectService.userHasProjectPermission(project)) {
+            List<Task> projectTasks = taskService.getTasksByProjectId(id);
+            return ResponseEntity.ok(
+                    projectTasks.stream()
+                            .map(taskMapper::toTaskDto)
+                            .collect(Collectors.toList())
+            );
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
@@ -85,14 +69,22 @@ public class TaskController {
 
     @PutMapping("/id/{id}")
     public ResponseEntity<TaskDto> updateTask(@Valid @RequestBody UpdateTaskRequest updateTaskRequest, @PathVariable long id) {
-        Task taskToUpdate = taskMapper.toTask(updateTaskRequest);
-        Task updatedTask = taskService.updateTaskById(id, taskToUpdate);
-        return ResponseEntity.ok(taskMapper.toTaskDto(updatedTask));
+        Task task = taskService.validateAndGetTaskById(id);
+        if (task != null && taskService.userHasTaskPermission(task)) {
+            Task taskToUpdate = taskMapper.toTask(updateTaskRequest);
+            Task updatedTask = taskService.updateTaskById(id, taskToUpdate);
+            return ResponseEntity.ok(taskMapper.toTaskDto(updatedTask));
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    // test
     @DeleteMapping("/id/{id}")
-    public void deleteTask(@PathVariable long id) {
-        taskService.deleteTaskById(id);
+    public ResponseEntity<HttpStatus> deleteTask(@PathVariable long id) {
+        Task task = taskService.validateAndGetTaskById(id);
+        if (task != null && taskService.userHasTaskPermission(task)) {
+            taskService.deleteTaskById(id);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }

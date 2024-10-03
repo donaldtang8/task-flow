@@ -5,6 +5,6 @@ import java.util.List;
 
 import com.dt8.task_flow.entity.ProjectStatus;
 
-public record ProjectDto (long id, String title, String description, ProjectStatus status, LocalDateTime createdAt, UserDto owner, List<UserDto> users) {
+public record ProjectDto (long id, String title, String description, ProjectStatus status, LocalDateTime createdAt, LocalDateTime updatedAt, UserDto owner, List<UserDto> users, List<TaskDto> tasks) {
 }
 

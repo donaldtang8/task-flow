@@ -17,4 +17,8 @@ public interface TaskService {
     Task updateTaskById(long taskId, Task task);
 
     void deleteTaskById(long taskId);
+
+    Task validateAndGetTaskById(long taskId);
+
+    boolean userHasTaskPermission(Task task);
 }

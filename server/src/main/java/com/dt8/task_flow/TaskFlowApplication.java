@@ -27,7 +27,7 @@ public class TaskFlowApplication {
 			createUser(userService, passwordEncoder);
 			createProject(userService, projectService);
 			getProjectsByOwnerId(projectService);
-			createNewUserAndAddToProject(userService, projectService);
+//			createNewUserAndAddToProject(userService, projectService);
 			getProjectsByUserId(userService, 2);
 		};
 	}
@@ -64,12 +64,12 @@ public class TaskFlowApplication {
 		}
 	}
 
-	private void createNewUserAndAddToProject(UserService userService, ProjectService projectService) {
-		User newUser = new User("user1@email.com", "Moo", "Deng", "user1", "test123", "USER");
-		userService.createUser(newUser);
-		projectService.addUserToProjectById(2, newUser.getId());
-		getProjectsByUserId(userService, newUser.getId());
-	}
+//	private void createNewUserAndAddToProject(UserService userService, ProjectService projectService) {
+//		User newUser = new User("user1@email.com", "Moo", "Deng", "user1", "test123", "USER");
+//		userService.createUser(newUser);
+//		projectService.addUserToProjectById(2, newUser);
+//		getProjectsByUserId(userService, newUser.getId());
+//	}
 
 	private void deleteProject(ProjectService projectService) {
 		projectService.deleteProjectById(2);

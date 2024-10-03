@@ -11,11 +11,11 @@ import java.util.Optional;
 public interface UserService {
     List<User> getUsers();
 
-    Optional<User> getUserById(long id);
+    Optional<User> getUserById(long userId);
 
     User getUserByUsername(String username);
 
-    List<Project> getProjectsByUserId(long id);
+    List<Project> getProjectsByUserId(long userId);
 
     User createUser(User user);
 
@@ -28,6 +28,8 @@ public interface UserService {
     boolean hasUserWithEmail(String email);
 
     User validateAndGetUserByUsername(String username);
+
+    User validateAndGetUserById(long userId);
 
     User getCurrentUser();
 }
