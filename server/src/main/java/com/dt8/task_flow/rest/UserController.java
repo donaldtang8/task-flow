@@ -3,25 +3,21 @@ package com.dt8.task_flow.rest;
 import com.dt8.task_flow.entity.User;
 import com.dt8.task_flow.mapper.UserMapper;
 import com.dt8.task_flow.rest.dto.UserDto;
-import com.dt8.task_flow.security.CustomUserDetails;
 import com.dt8.task_flow.security.WebSecurityConfig;
 import com.dt8.task_flow.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    private UserService userService;
-    private UserMapper userMapper;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
     @Autowired
     public UserController(UserService userService, UserMapper userMapper) {
@@ -30,42 +26,47 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable long id, @AuthenticationPrincipal CustomUserDetails currentUser) {
-        Optional<User> selfUserOptional = userService.getUserById(currentUser.getId());
-        Optional<User> userOptional = userService.getUserById(id);
+    public ResponseEntity<UserDto> getUserById(@PathVariable long id) {
+        User user = userService.validateAndGetUserById(id);
+        User selfUser = userService.getCurrentUser();
 
-        if (selfUserOptional.isPresent() && userOptional.isPresent()) {
-            User selfUser = selfUserOptional.get();
-            User user = userOptional.get();
-
-            if (selfUser.getRole().equals(WebSecurityConfig.ADMIN) || selfUser.getId() == id) {
-                return ResponseEntity.ok(userMapper.toUserDto(user));
-            }
+        if (user != null && selfUser.getRole().equals(WebSecurityConfig.ADMIN) || selfUser.getId() == id) {
+            return ResponseEntity.ok(userMapper.toUserDto(user));
         }
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDto> getCurrentUser(@AuthenticationPrincipal CustomUserDetails currentUser) {
-        return ResponseEntity.ok(userMapper.toUserDto(userService.validateAndGetUserByUsername(currentUser.getUsername())));
+    public ResponseEntity<UserDto> getCurrentUser() {
+        User user = userService.getCurrentUser();
+        return ResponseEntity.ok(userMapper.toUserDto(user));
     }
 
     @GetMapping("/")
     public ResponseEntity<List<UserDto>> getUsers() {
-        return ResponseEntity.ok(
-                userService
-                .getUsers()
-                .stream()
-                .map(userMapper::toUserDto)
-                .collect(Collectors.toList())
-        );
+        User selfUser = userService.getCurrentUser();
+        if (selfUser.getRole().equals(WebSecurityConfig.ADMIN)) {
+            return ResponseEntity.ok(
+                    userService
+                            .getUsers()
+                            .stream()
+                            .map(userMapper::toUserDto)
+                            .collect(Collectors.toList())
+            );
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable long id) {
-        Optional<User> userOptional = userService.getUserById(id);
-        userOptional.ifPresent(user -> userService.deleteUser(user));
+    public ResponseEntity<HttpStatus> deleteUser(@PathVariable long id) {
+        User user = userService.validateAndGetUserById(id);
+        User selfUser = userService.getCurrentUser();
 
+        if (user != null && (selfUser.getId() == id || selfUser.getRole().equals(WebSecurityConfig.ADMIN))) {
+            userService.deleteUser(user);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
