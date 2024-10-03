@@ -28,7 +28,6 @@ public class TaskFlowApplication {
 			createProject(userService, projectService);
 			getProjectsByOwnerId(projectService);
 			createNewUserAndAddToProject(userService, projectService);
-//			deleteProject(projectService);
 			getProjectsByUserId(userService, 2);
 		};
 	}

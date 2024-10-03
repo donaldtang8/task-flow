@@ -41,10 +41,11 @@ public class Task {
 
     public Task() {}
 
-    public Task(String title, String description) {
+    public Task(String title, String description, Project project) {
         this.title = title;
         this.description = description;
         this.status = TaskStatus.NONE;
+        this.project = project;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }

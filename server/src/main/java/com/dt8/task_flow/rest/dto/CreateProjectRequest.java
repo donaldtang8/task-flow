@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
 public class CreateProjectRequest {
-    @NotBlank
     @Min(value=3, message="Title must be at least 3 characters long")
     private String title;
 

@@ -95,4 +95,15 @@ public class ProjectServiceImpl implements ProjectService {
     public void deleteProjectById(long projectId) {
         projectRepository.deleteById(projectId);
     }
+
+    @Override
+    public boolean userInProject(User user, Project project) {
+        System.out.println("User is:");
+        System.out.println(user);
+        System.out.println("Project is:");
+        System.out.println(project);
+        System.out.println(project.getUsers());
+        System.out.println(project.getOwner());
+        return project.getUsers().contains(user) || project.getOwner().equals(user);
+    }
 }

@@ -39,8 +39,9 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/api/projects").hasAnyAuthority(ADMIN, USER) // Require ADMIN or USER role for /api/**
+                        .requestMatchers("/api/tasks").hasAnyAuthority(ADMIN, USER) // Require ADMIN or USER role for /api/**
                         .requestMatchers("/auth/**").permitAll() // Allow all requests to /auth/**
+                        .requestMatchers("/", "/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

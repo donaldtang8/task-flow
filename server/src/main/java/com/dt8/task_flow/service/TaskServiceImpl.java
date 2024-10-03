@@ -1,8 +1,12 @@
 package com.dt8.task_flow.service;
 
+import com.dt8.task_flow.entity.Project;
 import com.dt8.task_flow.entity.Task;
+import com.dt8.task_flow.entity.User;
 import com.dt8.task_flow.repository.TaskRepository;
+import com.dt8.task_flow.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,10 +16,15 @@ import java.util.Optional;
 @Service
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
+    private final ProjectService projectService;
+
+    private final UserService userService;
 
     @Autowired
-    public TaskServiceImpl(TaskRepository taskRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository, ProjectService projectService, UserService userService) {
         this.taskRepository = taskRepository;
+        this.projectService = projectService;
+        this.userService = userService;
     }
 
     @Override
@@ -29,9 +38,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> getTasksByUserId(long userId) {
-       return taskRepository.findByAssigneeId(userId);
-    }
+    public List<Task> getTasksByUserId(long userId) { return taskRepository.findByAssigneeId(userId); }
 
     @Override
     public Task createTask(Task task) {
@@ -40,21 +47,39 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task updateTaskById(long taskId, Task updatedTask) {
-        Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
-        task.setTitle(updatedTask.getTitle());
-        task.setDescription(updatedTask.getDescription());
-        task.setStatus(updatedTask.getStatus());
-        task.setAssignee(updatedTask.getAssignee());
-        task.setAssigner(updatedTask.getAssigner());
-        task.setTargetDate(updatedTask.getTargetDate());
-        task.setProject(updatedTask.getProject());
-        task.setUpdatedAt(LocalDateTime.now());
-        taskRepository.save(task);
-        return task;
+        Optional<Task> taskOptional = taskRepository.findById(taskId);
+        if (taskOptional.isPresent()) {
+            Task task = taskOptional.get();
+            task.setTitle(updatedTask.getTitle());
+            task.setDescription(updatedTask.getDescription());
+            task.setStatus(updatedTask.getStatus());
+            task.setAssignee(updatedTask.getAssignee());
+            task.setAssigner(updatedTask.getAssigner());
+            task.setTargetDate(updatedTask.getTargetDate());
+            task.setProject(updatedTask.getProject());
+            task.setUpdatedAt(LocalDateTime.now());
+            taskRepository.save(task);
+            return task;
+        }
+        return null;
     }
 
     @Override
     public void deleteTaskById(long taskId) {
-        taskRepository.deleteById(taskId);
+        Optional<Task> taskOptional = taskRepository.findById(taskId);
+        if (taskOptional.isPresent()) {
+            taskRepository.deleteById(taskId);
+        }
+    }
+
+    // checks if user has permission to make changes to the task
+    // returns true if user is part of the same project that task is in
+    public boolean userHasTaskPermission(Task task) {
+        if (task != null) {
+            Project project = task.getProject();
+            User user = userService.getCurrentUser();
+            return projectService.userInProject(user, project);
+        }
+        return false;
     }
 }

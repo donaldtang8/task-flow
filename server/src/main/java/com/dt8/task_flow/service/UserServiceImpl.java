@@ -3,8 +3,11 @@ package com.dt8.task_flow.service;
 import com.dt8.task_flow.entity.Project;
 import com.dt8.task_flow.entity.User;
 import com.dt8.task_flow.repository.UserRepository;
+import com.dt8.task_flow.security.CustomUserDetails;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -72,5 +75,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User validateAndGetUserByUsername(String username) {
         return getUserByUsername(username);
+    }
+
+    @Override
+    public User getCurrentUser() {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return getUserById(currentUser.getId()).get();
     }
 }

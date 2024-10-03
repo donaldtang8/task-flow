@@ -37,6 +37,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     .ifPresent(jws -> {
                         String username = jws.getBody().getSubject();
                         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                        System.out.println("User details:");
                         System.out.println(userDetails);
                         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

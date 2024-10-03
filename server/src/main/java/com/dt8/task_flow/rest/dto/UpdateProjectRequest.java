@@ -3,13 +3,15 @@ package com.dt8.task_flow.rest.dto;
 import com.dt8.task_flow.entity.ProjectStatus;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class UpdateProjectRequest {
-    @NotBlank
-    @Min(value=3, message="Title must be at least 3 characters long")
+    @Size(min=3, message="Title must be at least 3 characters long")
+    @Size(max=50, message="Title cannot be more than 50 characters long")
     private String title;
 
-    @Min(value=10, message="Description must be at least 10 characters long")
+    @Size(min=3, message="Title must be at least 3 characters long")
+    @Size(max=200, message="Title cannot be more than 200 characters long")
     private String description;
 
     @NotBlank
