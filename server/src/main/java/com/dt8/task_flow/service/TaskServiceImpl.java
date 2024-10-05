@@ -2,7 +2,9 @@ package com.dt8.task_flow.service;
 
 import com.dt8.task_flow.entity.Project;
 import com.dt8.task_flow.entity.Task;
+import com.dt8.task_flow.repository.ProjectRepository;
 import com.dt8.task_flow.repository.TaskRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +15,14 @@ import java.util.Optional;
 @Service
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
     private final ProjectService projectService;
 
 
     @Autowired
-    public TaskServiceImpl(TaskRepository taskRepository, ProjectService projectService) {
+    public TaskServiceImpl(TaskRepository taskRepository, ProjectRepository projectRepository, ProjectService projectService) {
         this.taskRepository = taskRepository;
+        this.projectRepository = projectRepository;
         this.projectService = projectService;
     }
 
@@ -38,6 +42,26 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Task createTask(Task task) {
         return taskRepository.save(task);
+    }
+
+    @Override
+    @Transactional
+    public Project addTaskToProjectById(long projectId, long taskId) {
+        Project project = projectService.getProjectById(projectId).get();
+        Task task = getTaskById(taskId).get();
+        project.addTask(task);
+        projectRepository.save(project);
+        return project;
+    }
+
+    @Override
+    @Transactional
+    public Project removeTaskFromProjectById(long projectId, long taskId) {
+        Project project = projectService.getProjectById(projectId).get();
+        Task task = getTaskById(taskId).get();
+        project.removeTask(task);
+        projectRepository.save(project);
+        return project;
     }
 
     @Override
@@ -65,18 +89,19 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Task validateAndGetTaskById(long taskId) {
+    public boolean validateTaskById(long taskId) {
         Optional<Task> taskOptional = getTaskById(taskId);
-        return taskOptional.orElse(null);
+        return taskOptional.isPresent();
     }
 
     // checks if user has permission to make changes to the task
     // returns true if user is part of the same project that task is in
     @Override
-    public boolean userHasTaskPermission(Task task) {
-        if (task != null) {
-            Project project = task.getProject();
-            return projectService.userHasProjectPermission(project);
+    public boolean validateTaskPermissionById(long taskId) {
+        Optional<Task> task = getTaskById(taskId);
+        if (task.isPresent()) {
+            Project project = task.get().getProject();
+            return projectService.validateProjectPermissionById(project.getId());
         }
         return false;
     }

@@ -1,5 +1,6 @@
 package com.dt8.task_flow.service;
 
+import com.dt8.task_flow.entity.Project;
 import com.dt8.task_flow.entity.Task;
 
 import java.util.List;
@@ -14,11 +15,15 @@ public interface TaskService {
 
     Task createTask(Task task);
 
+    Project addTaskToProjectById(long projectId, long taskId);
+
+    Project removeTaskFromProjectById(long projectId, long taskId);
+
     Task updateTaskById(long taskId, Task task);
 
     void deleteTaskById(long taskId);
 
-    Task validateAndGetTaskById(long taskId);
+    boolean validateTaskById(long taskId);
 
-    boolean userHasTaskPermission(Task task);
+    boolean validateTaskPermissionById(long taskId);
 }

@@ -2,8 +2,6 @@ package com.dt8.task_flow.service;
 
 import com.dt8.task_flow.entity.Project;
 import com.dt8.task_flow.entity.User;
-import com.dt8.task_flow.security.CustomUserDetails;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,9 +25,7 @@ public interface UserService {
 
     boolean hasUserWithEmail(String email);
 
-    User validateAndGetUserByUsername(String username);
-
-    User validateAndGetUserById(long userId);
+    boolean validateUserById(long userId);
 
     User getCurrentUser();
 }

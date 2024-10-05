@@ -36,7 +36,7 @@ public class Project {
     @JoinColumn(name="owner_id")
     private User owner;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinTable(
             name = "users_projects",
             joinColumns = @JoinColumn(name="project_id"),
@@ -148,7 +148,7 @@ public class Project {
         if (users == null) {
             users = new ArrayList<>();
         }
-        if (!users.contains(user)) {
+        else if (!users.contains(user)) {
             users.add(user);
         }
     }

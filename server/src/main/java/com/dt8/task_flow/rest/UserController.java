@@ -25,25 +25,7 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable long id) {
-        User user = userService.validateAndGetUserById(id);
-        User selfUser = userService.getCurrentUser();
-
-        if (user != null && selfUser.getRole().equals(WebSecurityConfig.ADMIN) || selfUser.getId() == id) {
-            return ResponseEntity.ok(userMapper.toUserDto(user));
-        }
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<UserDto> getCurrentUser() {
-        User user = userService.getCurrentUser();
-        return ResponseEntity.ok(userMapper.toUserDto(user));
-    }
-
-    @GetMapping("/")
+    @GetMapping()
     public ResponseEntity<List<UserDto>> getUsers() {
         User selfUser = userService.getCurrentUser();
         if (selfUser.getRole().equals(WebSecurityConfig.ADMIN)) {
@@ -58,12 +40,30 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteUser(@PathVariable long id) {
-        User user = userService.validateAndGetUserById(id);
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getCurrentUser() {
+        User user = userService.getCurrentUser();
+        return ResponseEntity.ok(userMapper.toUserDto(user));
+    }
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable long id) {
         User selfUser = userService.getCurrentUser();
 
-        if (user != null && (selfUser.getId() == id || selfUser.getRole().equals(WebSecurityConfig.ADMIN))) {
+        if (userService.validateUserById(id) && (selfUser.getRole().equals(WebSecurityConfig.ADMIN) || selfUser.getId() == id)) {
+            User user = userService.getUserById(id).get();
+            return ResponseEntity.ok(userMapper.toUserDto(user));
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<HttpStatus> deleteUser(@PathVariable long id) {
+        User selfUser = userService.getCurrentUser();
+
+        if (userService.validateUserById(id) && (selfUser.getId() == id || selfUser.getRole().equals(WebSecurityConfig.ADMIN))) {
+            User user = userService.getUserById(id).get();
             userService.deleteUser(user);
         }
 

@@ -27,8 +27,8 @@ public class TaskFlowApplication {
 			createUser(userService, passwordEncoder);
 			createProject(userService, projectService);
 			getProjectsByOwnerId(projectService);
-//			createNewUserAndAddToProject(userService, projectService);
-			getProjectsByUserId(userService, 2);
+			createNewUserAndAddToProject(userService, projectService);
+//			getProjectsByUserId(userService, 2);
 		};
 	}
 
@@ -56,20 +56,23 @@ public class TaskFlowApplication {
 		}
 	}
 
-	private void getProjectsByUserId(UserService userService, long userId) {
+	private void getProjectsByUserId(ProjectService projectService, long userId) {
 		System.out.println("Getting projects for user: " + userId);
-		List<Project> projects = userService.getProjectsByUserId(userId);
+		List<Project> projects = projectService.getProjectsByUserId(userId, true);
 		for (Project p: projects) {
 			System.out.println(p.getTitle());
 		}
 	}
 
-//	private void createNewUserAndAddToProject(UserService userService, ProjectService projectService) {
-//		User newUser = new User("user1@email.com", "Moo", "Deng", "user1", "test123", "USER");
-//		userService.createUser(newUser);
-//		projectService.addUserToProjectById(2, newUser);
-//		getProjectsByUserId(userService, newUser.getId());
-//	}
+	private void createNewUserAndAddToProject(UserService userService, ProjectService projectService) {
+		User newUser = new User("user1@email.com", "Moo", "Deng", "user1", "test123", "USER");
+		userService.createUser(newUser);
+		projectService.addUserToProjectById(2, newUser.getId());
+		Project newProject = new Project("moo deng's project", "moo deng is the best");
+		newProject.setOwner(newUser);
+		projectService.createProject(newProject);
+		getProjectsByUserId(projectService, newUser.getId());
+	}
 
 	private void deleteProject(ProjectService projectService) {
 		projectService.deleteProjectById(2);

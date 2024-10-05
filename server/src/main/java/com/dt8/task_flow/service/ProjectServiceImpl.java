@@ -4,35 +4,43 @@ import com.dt8.task_flow.entity.Project;
 import com.dt8.task_flow.entity.Task;
 import com.dt8.task_flow.entity.User;
 import com.dt8.task_flow.repository.ProjectRepository;
-import com.dt8.task_flow.repository.TaskRepository;
 import com.dt8.task_flow.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
-
-    private final TaskRepository taskRepository;
+    private final UserService userService;
     private final UserRepository userRepository;
 
-    private final UserService userService;
-
     @Autowired
-    public ProjectServiceImpl(ProjectRepository projectRepository, TaskRepository taskRepository, UserRepository userRepository, UserService userService) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, UserService userService, UserRepository userRepository) {
         this.projectRepository = projectRepository;
-        this.userRepository = userRepository;
-        this.taskRepository = taskRepository;
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @Override
     public List<Project> getProjectsByOwnerId(long ownerId) {
         return projectRepository.findByOwnerId(ownerId);
+    }
+
+    @Override
+    public List<Project> getProjectsByUserId(long userId, boolean includeOwned) {
+        List<Project> projectList = new ArrayList<>();
+        if (userService.validateUserById(userId)) {
+            projectList.addAll(userRepository.findProjectsByUserId(userId));
+        }
+        if (includeOwned) {
+            projectList.addAll(getProjectsByOwnerId(userId));
+        }
+        return projectList;
     }
 
     @Override
@@ -48,33 +56,25 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    public Project addUserToProjectById(Project project, User user) {
+    public Project addUserToProjectById(long projectId, long userId) {
+        Project project = getProjectById(projectId).get();
+        User user = userService.getUserById(userId).get();
         project.addUser(user);
         projectRepository.save(project);
+        user.addProject(project);
+        userRepository.save(user);
         return project;
     }
 
     @Override
     @Transactional
-    public Project removeUserFromProjectById(Project project, User user) {
+    public Project removeUserFromProjectById(long projectId, long userId) {
+        Project project = getProjectById(projectId).get();
+        User user = userService.getUserById(userId).get();
         project.removeUser(user);
         projectRepository.save(project);
-        return project;
-    }
-
-    @Override
-    @Transactional
-    public Project addTaskToProjectById(Project project, Task task) {
-        project.addTask(task);
-        projectRepository.save(project);
-        return project;
-    }
-
-    @Override
-    @Transactional
-    public Project removeTaskFromProjectById(Project project, Task task) {
-        project.removeTask(task);
-        projectRepository.save(project);
+        user.removeProject(project);
+        userRepository.save(user);
         return project;
     }
 
@@ -96,15 +96,17 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Project validateAndGetProjectById(long projectId) {
+    public boolean validateProjectById(long projectId) {
         Optional<Project> projectOptional = getProjectById(projectId);
-        return projectOptional.orElse(null);
+        return projectOptional.isPresent();
     }
 
     @Override
-    public boolean userHasProjectPermission(Project project) {
+    public boolean validateProjectPermissionById(long projectId) {
         User user = userService.getCurrentUser();
-        if (project != null) {
+        Optional<Project> projectOptional = getProjectById(projectId);
+        if (projectOptional.isPresent()) {
+            Project project = projectOptional.get();
             return project.getUsers().contains(user) || project.getOwner().equals(user);
         }
         return false;

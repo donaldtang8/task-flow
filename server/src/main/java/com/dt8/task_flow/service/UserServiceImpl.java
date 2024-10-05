@@ -6,9 +6,7 @@ import com.dt8.task_flow.repository.UserRepository;
 import com.dt8.task_flow.security.CustomUserDetails;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -73,14 +71,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User validateAndGetUserByUsername(String username) {
-        return getUserByUsername(username);
-    }
-
-    @Override
-    public User validateAndGetUserById(long userId) {
+    public boolean validateUserById(long userId) {
         Optional<User> userOptional = getUserById(userId);
-        return userOptional.orElse(null);
+        return userOptional.isPresent();
     }
 
     @Override

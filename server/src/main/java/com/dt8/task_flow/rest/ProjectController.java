@@ -1,7 +1,6 @@
 package com.dt8.task_flow.rest;
 
 import com.dt8.task_flow.entity.Project;
-import com.dt8.task_flow.entity.Task;
 import com.dt8.task_flow.entity.User;
 import com.dt8.task_flow.mapper.ProjectMapper;
 import com.dt8.task_flow.rest.dto.CreateProjectRequest;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,30 +25,27 @@ public class ProjectController {
     private ProjectService projectService;
     private ProjectMapper projectMapper;
     private UserService userService;
-    private TaskService taskService;
 
     @Autowired
-    public ProjectController(ProjectService projectService, ProjectMapper projectMapper, UserService userService, TaskService taskService) {
+    public ProjectController(ProjectService projectService, ProjectMapper projectMapper, UserService userService) {
         this.projectService = projectService;
         this.projectMapper = projectMapper;
         this.userService = userService;
-        this.taskService = taskService;
     }
 
     @GetMapping("/id/{id}")
     public ResponseEntity<ProjectDto> getProjectById(@PathVariable long id) {
-        Project project = projectService.validateAndGetProjectById(id);
-        if (project != null && projectService.userHasProjectPermission(project))  {
+        if (projectService.validateProjectById(id) && projectService.validateProjectPermissionById(id))  {
+            Project project = projectService.getProjectById(id).get();
             return ResponseEntity.ok(projectMapper.toProjectDto(project));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    // check if admin role is getting read
     @GetMapping("/user/{id}")
     public ResponseEntity<List<ProjectDto>> getProjectsByUserId(@PathVariable long id) {
         User user = userService.getCurrentUser();
-        if (!Objects.equals(user.getRole(), WebSecurityConfig.ADMIN) || user.getId() != id) {
+        if (user.getRole().equals(WebSecurityConfig.ADMIN) || user.getId() != id) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         List<Project> usersProjects = userService.getProjectsByUserId(id);
@@ -71,10 +66,8 @@ public class ProjectController {
 
     @PutMapping("/id/{id}/add-user/{userId}")
     public ResponseEntity<ProjectDto> addUserToProjectById(@PathVariable long id, @PathVariable long userId) {
-        Project project = projectService.validateAndGetProjectById(id);
-        User userToAdd = userService.validateAndGetUserById(userId);
-        if (userToAdd != null && projectService.userHasProjectPermission(project)) {
-            Project updatedProject = projectService.addUserToProjectById(project, userToAdd);
+        if (userService.validateUserById(userId) && projectService.validateProjectById(id) && projectService.validateProjectPermissionById(id)) {
+            Project updatedProject = projectService.addUserToProjectById(id, userId);
             return ResponseEntity.ok(projectMapper.toProjectDto(updatedProject));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -82,10 +75,8 @@ public class ProjectController {
 
     @PutMapping("/id/{id}/remove-user/{userId}")
     public ResponseEntity<ProjectDto> removeUserFromProjectById(@PathVariable long id, @PathVariable long userId) {
-        Project project = projectService.validateAndGetProjectById(id);
-        User userToRemove = userService.validateAndGetUserById(userId);
-        if (userToRemove != null && projectService.userHasProjectPermission(project)) {
-            Project updatedProject = projectService.removeUserFromProjectById(project, userToRemove);
+        if (userService.validateUserById(userId) && projectService.validateProjectById(id) && projectService.validateProjectPermissionById(id)) {
+            Project updatedProject = projectService.removeUserFromProjectById(id, userId);
             return ResponseEntity.ok(projectMapper.toProjectDto(updatedProject));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -115,8 +106,7 @@ public class ProjectController {
 
     @PutMapping("/id/{id}")
     public ResponseEntity<ProjectDto> updateProjectById(@Valid @RequestBody UpdateProjectRequest updateProjectRequest, @PathVariable long id) {
-        Project project = projectService.validateAndGetProjectById(id);
-        if (project != null && projectService.userHasProjectPermission(project)) {
+        if (projectService.validateProjectById(id) && projectService.validateProjectPermissionById(id)) {
             Project projectToUpdate = projectMapper.toProject(updateProjectRequest);
             Project updatedProject = projectService.updateProjectById(id, projectToUpdate);
             return ResponseEntity.ok(projectMapper.toProjectDto(updatedProject));
@@ -126,8 +116,7 @@ public class ProjectController {
 
     @DeleteMapping("/id/{id}")
     public ResponseEntity<HttpStatus> deleteProject(@PathVariable long id) {
-        Project project = projectService.validateAndGetProjectById(id);
-        if (project != null && projectService.userHasProjectPermission(project)) {
+        if (projectService.validateProjectById(id) && projectService.validateProjectPermissionById(id)) {
             projectService.deleteProjectById(id);
             return ResponseEntity.status(HttpStatus.OK).build();
         }
