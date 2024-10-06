@@ -1,8 +1,6 @@
 package com.dt8.task_flow.rest.dto;
 
 import com.dt8.task_flow.entity.ProjectStatus;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class UpdateProjectRequest {
@@ -14,10 +12,8 @@ public class UpdateProjectRequest {
     @Size(max=200, message="Title cannot be more than 200 characters long")
     private String description;
 
-    @NotBlank
     private ProjectStatus status;
 
-    @NotBlank
     private long ownerId;
 
     public String getTitle() {

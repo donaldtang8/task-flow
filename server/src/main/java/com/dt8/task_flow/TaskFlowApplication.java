@@ -1,8 +1,8 @@
 package com.dt8.task_flow;
 
 import com.dt8.task_flow.entity.Project;
-import com.dt8.task_flow.entity.ProjectStatus;
 import com.dt8.task_flow.entity.User;
+import com.dt8.task_flow.entity.UserRole;
 import com.dt8.task_flow.service.ProjectService;
 import com.dt8.task_flow.service.UserService;
 import org.springframework.boot.CommandLineRunner;
@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
-import java.util.Optional;
 
 @SpringBootApplication
 public class TaskFlowApplication {
@@ -33,7 +32,7 @@ public class TaskFlowApplication {
 	}
 
 	public void createUser(UserService userService, PasswordEncoder passwordEncoder) {
-		User newUser = new User("admin@email.com", "admin", "admin", "admin", passwordEncoder.encode("test123"), "ADMIN");
+		User newUser = new User("admin@email.com", "admin", "admin", "admin", passwordEncoder.encode("test123"), UserRole.ADMIN);
 		userService.createUser(newUser);
 	 }
 
@@ -65,7 +64,7 @@ public class TaskFlowApplication {
 	}
 
 	private void createNewUserAndAddToProject(UserService userService, ProjectService projectService) {
-		User newUser = new User("user1@email.com", "Moo", "Deng", "user1", "test123", "USER");
+		User newUser = new User("user1@email.com", "Moo", "Deng", "user1", "test123", UserRole.USER);
 		userService.createUser(newUser);
 		projectService.addUserToProjectById(2, newUser.getId());
 		Project newProject = new Project("moo deng's project", "moo deng is the best");

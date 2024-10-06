@@ -8,7 +8,6 @@ import com.dt8.task_flow.rest.dto.ProjectDto;
 import com.dt8.task_flow.rest.dto.UpdateProjectRequest;
 import com.dt8.task_flow.security.WebSecurityConfig;
 import com.dt8.task_flow.service.ProjectService;
-import com.dt8.task_flow.service.TaskService;
 import com.dt8.task_flow.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,7 @@ public class ProjectController {
     @GetMapping("/user/{id}")
     public ResponseEntity<List<ProjectDto>> getProjectsByUserId(@PathVariable long id) {
         User user = userService.getCurrentUser();
-        if (user.getRole().equals(WebSecurityConfig.ADMIN) || user.getId() != id) {
+        if (user.getRole().toString().equals(WebSecurityConfig.ADMIN) || user.getId() != id) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         List<Project> usersProjects = userService.getProjectsByUserId(id);
@@ -57,7 +56,7 @@ public class ProjectController {
         );
     }
 
-    @PostMapping("/")
+    @PostMapping()
     public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody CreateProjectRequest createProjectRequest) {
         Project projectToCreate = projectMapper.toProject(createProjectRequest);
         Project project = projectService.createProject(projectToCreate);

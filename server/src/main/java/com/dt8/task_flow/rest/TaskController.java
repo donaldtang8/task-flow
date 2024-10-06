@@ -42,8 +42,8 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @GetMapping("/project/{id}")
-    public ResponseEntity<List<TaskDto>> getTasksByProjectId(@PathVariable long projectId, @AuthenticationPrincipal CustomUserDetails currentUser) {
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<List<TaskDto>> getTasksByProjectId(@PathVariable long projectId) {
         if (projectService.validateProjectById(projectId) && projectService.validateProjectPermissionById(projectId)) {
             List<Task> projectTasks = taskService.getTasksByProjectId(projectId);
             return ResponseEntity.ok(
@@ -65,7 +65,6 @@ public class TaskController {
     @PutMapping("/id/{id}")
     public ResponseEntity<TaskDto> updateTask(@Valid @RequestBody UpdateTaskRequest updateTaskRequest, @PathVariable long id) {
         if (taskService.validateTaskById(id) && taskService.validateTaskPermissionById(id)) {
-            Task task = taskService.getTaskById(id).get();
             Task taskToUpdate = taskMapper.toTask(updateTaskRequest);
             Task updatedTask = taskService.updateTaskById(id, taskToUpdate);
             return ResponseEntity.ok(taskMapper.toTaskDto(updatedTask));

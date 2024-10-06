@@ -2,6 +2,7 @@ package com.dt8.task_flow.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,28 +22,30 @@ public class Project {
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;
 
-    private LocalDateTime targetDate;
+    @Temporal(TemporalType.DATE)
+    private LocalDate targetDate;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
 
     @ManyToOne()
     @JoinColumn(name="owner_id")
     private User owner;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToMany
     @JoinTable(
             name = "users_projects",
             joinColumns = @JoinColumn(name="project_id"),
             inverseJoinColumns = @JoinColumn(name="user_id")
     )
-    List<User> users;
+    private List<User> users;
 
     public Project() {
     }
@@ -83,11 +86,11 @@ public class Project {
         this.status = status;
     }
 
-    public LocalDateTime getTargetDate() {
+    public LocalDate getTargetDate() {
         return targetDate;
     }
 
-    public void setTargetDate(LocalDateTime targetDate) {
+    public void setTargetDate(LocalDate targetDate) {
         this.targetDate = targetDate;
     }
 
@@ -157,6 +160,16 @@ public class Project {
         if (users != null) {
             users.remove(user);
         }
+    }
+
+    @PrePersist // called before the entity is persisted (created)
+    private void onCreate() {
+        this.createdAt = LocalDateTime.now(); // set createdAt on creation
+    }
+
+    @PreUpdate // called before the entity is updated
+    private void onUpdate() {
+        this.updatedAt = LocalDateTime.now(); // set updatedAt on update
     }
 }
 

@@ -28,7 +28,9 @@ public class UserController {
     @GetMapping()
     public ResponseEntity<List<UserDto>> getUsers() {
         User selfUser = userService.getCurrentUser();
-        if (selfUser.getRole().equals(WebSecurityConfig.ADMIN)) {
+        String selfUserRole = selfUser.getRole().toString();
+
+        if (selfUserRole.equals(WebSecurityConfig.ADMIN)) {
             return ResponseEntity.ok(
                     userService
                             .getUsers()
@@ -49,8 +51,9 @@ public class UserController {
     @GetMapping("/id/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable long id) {
         User selfUser = userService.getCurrentUser();
+        String selfUserRole = selfUser.getRole().toString();
 
-        if (userService.validateUserById(id) && (selfUser.getRole().equals(WebSecurityConfig.ADMIN) || selfUser.getId() == id)) {
+        if (userService.validateUserById(id) && (selfUserRole.equals(WebSecurityConfig.ADMIN) || selfUser.getId() == id)) {
             User user = userService.getUserById(id).get();
             return ResponseEntity.ok(userMapper.toUserDto(user));
         }
@@ -61,8 +64,9 @@ public class UserController {
     @DeleteMapping("/id/{id}")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable long id) {
         User selfUser = userService.getCurrentUser();
+        String selfUserRole = selfUser.getRole().toString();
 
-        if (userService.validateUserById(id) && (selfUser.getId() == id || selfUser.getRole().equals(WebSecurityConfig.ADMIN))) {
+        if (userService.validateUserById(id) && (selfUser.getId() == id || selfUserRole.equals(WebSecurityConfig.ADMIN))) {
             User user = userService.getUserById(id).get();
             userService.deleteUser(user);
         }

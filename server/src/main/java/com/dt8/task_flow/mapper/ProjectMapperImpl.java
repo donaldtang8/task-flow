@@ -53,10 +53,7 @@ public class ProjectMapperImpl implements ProjectMapper {
         Project project = new Project(updateProjectRequest.getTitle(), updateProjectRequest.getDescription());
         project.setStatus(updateProjectRequest.getStatus());
         Optional<User> ownerOptional = userService.getUserById(updateProjectRequest.getOwnerId());
-        if (ownerOptional.isEmpty()) {
-            throw new RuntimeException("No user found");
-        }
-        project.setOwner(ownerOptional.get());
+        ownerOptional.ifPresent(project::setOwner);
         return project;
     }
 

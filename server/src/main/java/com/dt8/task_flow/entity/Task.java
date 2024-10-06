@@ -2,6 +2,7 @@ package com.dt8.task_flow.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,28 +16,33 @@ public class Task {
 
     private String description;
 
+    @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "assignee_id")
     private User assignee;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "assigner_id")
     private User assigner;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name="project_id")
     private Project project;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "user_id")
     private User createdBy;
 
-    private LocalDateTime targetDate;
+    @Temporal(TemporalType.DATE)
+    private LocalDate targetDate;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
     public Task() {}
@@ -114,11 +120,11 @@ public class Task {
         this.createdBy = user;
     }
 
-    public LocalDateTime getTargetDate() {
+    public LocalDate getTargetDate() {
         return targetDate;
     }
 
-    public void setTargetDate(LocalDateTime targetDate) {
+    public void setTargetDate(LocalDate targetDate) {
         this.targetDate = targetDate;
     }
 

@@ -4,7 +4,7 @@ import com.dt8.task_flow.entity.ProjectStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class CreateProjectRequest {
     @Size(min=3, message="Title must be at least 3 characters long")
@@ -15,7 +15,7 @@ public class CreateProjectRequest {
 
     private ProjectStatus status;
 
-    private LocalDateTime targetDate;
+    private LocalDate targetDate;
 
     public String getTitle() {
         return title;
@@ -29,7 +29,7 @@ public class CreateProjectRequest {
         return status;
     }
 
-    public LocalDateTime getTargetDate() {
+    public LocalDate getTargetDate() {
         return targetDate;
     }
 }

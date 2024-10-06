@@ -21,13 +21,13 @@ public class User {
 
     private String password;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
-
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner")
     private List<Project> ownedProjects;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToMany
     @JoinTable(
             name = "users_projects",
             joinColumns = @JoinColumn(name="user_id"),
@@ -38,7 +38,7 @@ public class User {
     public User() {
     }
 
-    public User(String email, String firstName, String lastName, String username, String password, String role) {
+    public User(String email, String firstName, String lastName, String username, String password, UserRole role) {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -91,11 +91,11 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 

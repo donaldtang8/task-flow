@@ -1,6 +1,7 @@
 package com.dt8.task_flow.rest;
 
 import com.dt8.task_flow.entity.User;
+import com.dt8.task_flow.entity.UserRole;
 import com.dt8.task_flow.rest.dto.AuthResponse;
 import com.dt8.task_flow.rest.dto.LoginRequest;
 import com.dt8.task_flow.rest.dto.SignupRequest;
@@ -52,7 +53,7 @@ public class AuthController {
             throw new RuntimeException(String.format("Email %s already been used", email));
         }
 
-        userService.createUser(new User(email, firstName, lastName, username, passwordEncoder.encode(password), "USER"));
+        userService.createUser(new User(email, firstName, lastName, username, passwordEncoder.encode(password), UserRole.USER));
 
         String token = authenticateAndGetToken(username, password);
         return ResponseEntity.ok(new AuthResponse(token));

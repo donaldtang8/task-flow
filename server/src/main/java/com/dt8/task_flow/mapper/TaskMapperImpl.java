@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -75,7 +76,7 @@ public class TaskMapperImpl implements TaskMapper {
         UserDto assigner = userMapper.toUserDto(task.getAssigner());
         UserDto createdBy = userMapper.toUserDto(task.getCreatedBy());
         TaskProjectDto project = toTaskProjectDto(task.getProject());
-        LocalDateTime targetDate = task.getTargetDate();
+        LocalDate targetDate = task.getTargetDate();
         LocalDateTime createdAt = task.getCreatedAt();
         LocalDateTime updatedAt = task.getUpdatedAt();
 

@@ -1,7 +1,6 @@
 package com.dt8.task_flow.service;
 
 import com.dt8.task_flow.entity.Project;
-import com.dt8.task_flow.entity.Task;
 import com.dt8.task_flow.entity.User;
 import com.dt8.task_flow.repository.ProjectRepository;
 import com.dt8.task_flow.repository.UserRepository;

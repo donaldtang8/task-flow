@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class UpdateTaskRequest {
@@ -16,22 +17,17 @@ public class UpdateTaskRequest {
     private String title;
 
     @Size(min=3, message="Title must be at least 3 characters long")
-    @Size(max=20, message="Title cannot be more than 200 characters long")
+    @Size(max=200, message="Title cannot be more than 200 characters long")
     private String description;
 
-    @NotNull
     private TaskStatus status;
 
-    @NotNull
     private long assignee;
 
-    @NotNull
     private long assigner;
 
-    @NotNull
-    private LocalDateTime targetDate;
+    private LocalDate targetDate;
 
-    @NotNull
     private long project;
 
     public String getTitle() {
@@ -54,7 +50,7 @@ public class UpdateTaskRequest {
         return assigner;
     }
 
-    public LocalDateTime getTargetDate() {
+    public LocalDate getTargetDate() {
         return targetDate;
     }
 
