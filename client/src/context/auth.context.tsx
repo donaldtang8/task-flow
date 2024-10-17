@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import axiosInstance from '@/utils/axiosInstance';
 
 interface User {
   id: number;
@@ -29,9 +30,9 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   token: null,
   isAuthenticated: false,
-  register: async () => {},
-  login: async () => {},
-  logout: () => {},
+  register: async () => { },
+  login: async () => { },
+  logout: () => { },
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -51,29 +52,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  const register = async(credentials: any) => {
+  const register = async (credentials: any) => {
     try {
-      const res: any = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, credentials, config);
-      localStorage.setItem('token', res.data.token);
+      const res: any = await axiosInstance.post(`/auth/signup`, credentials);
+      localStorage.setItem('token', res.data.accessToken);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       setToken(res.data.token);
       setUser(res.data.user);
       setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Registration error:', error);
+    } catch (error: any) {
+      throw error;
     }
   }
 
   const login = async (credentials: any) => {
     try {
-      const res: any = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, credentials, config);
+      const res: any = await axiosInstance.post(`/auth/login`, credentials);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       setToken(res.data.token);
       setUser(res.data.user);
       setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (error: any) {
+      throw error;
     }
   };
 
