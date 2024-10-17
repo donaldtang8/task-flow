@@ -2,6 +2,8 @@ package com.dt8.task_flow.rest;
 
 import com.dt8.task_flow.entity.User;
 import com.dt8.task_flow.entity.UserRole;
+import com.dt8.task_flow.exception.BadRequestException;
+import com.dt8.task_flow.mapper.UserMapper;
 import com.dt8.task_flow.rest.dto.AuthResponse;
 import com.dt8.task_flow.rest.dto.LoginRequest;
 import com.dt8.task_flow.rest.dto.SignupRequest;
@@ -9,6 +11,7 @@ import com.dt8.task_flow.security.TokenProvider;
 import com.dt8.task_flow.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,25 +20,31 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
     private UserService userService;
+    private UserMapper userMapper;
     private PasswordEncoder passwordEncoder;
     private AuthenticationManager authenticationManager;
     private TokenProvider tokenProvider;
 
     @Autowired
-    public AuthController(UserService userService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, TokenProvider tokenProvider) {
+    public AuthController(UserService userService, UserMapper userMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, TokenProvider tokenProvider) {
         this.userService = userService;
+        this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         String token = authenticateAndGetToken(loginRequest.getUsername(), loginRequest.getPassword());
-        return ResponseEntity.ok(new AuthResponse(token));
+        User user = userService.getUserByUsername(loginRequest.getUsername());
+        if (token == null || user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        return ResponseEntity.ok(new AuthResponse(userMapper.toUserDto(user), token));
     }
 
     @PostMapping("/signup")
@@ -47,16 +56,16 @@ public class AuthController {
         String password = signupRequest.getPassword();
 
         if (userService.hasUserWithUsername(username)) {
-            throw new RuntimeException(String.format("Username %s already been used", username));
+            throw new BadRequestException("Username has already been used");
         }
         if (userService.hasUserWithEmail(signupRequest.getEmail())) {
-            throw new RuntimeException(String.format("Email %s already been used", email));
+            throw new BadRequestException("Email has already been used");
         }
 
-        userService.createUser(new User(email, firstName, lastName, username, passwordEncoder.encode(password), UserRole.USER));
+        User user = userService.createUser(new User(email, firstName, lastName, username, passwordEncoder.encode(password), UserRole.USER));
 
         String token = authenticateAndGetToken(username, password);
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponse(userMapper.toUserDto(user), token));
     }
 
     private String authenticateAndGetToken(String username, String password) {
