@@ -1,30 +1,7 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import axios from 'axios';
 import axiosInstance from '@/utils/axiosInstance';
-
-interface User {
-  id: number;
-  username: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  register: (credentials: any) => Promise<void>;
-  login: (credentials: any) => Promise<void>;
-  logout: () => void;
-}
-
-const config = {
-  headers: {
-    'Content-Type': 'application/json',
-  },
-};
+import { AuthContextType } from '@/types/auth.types';
+import { User } from '@/types/user.types';
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
