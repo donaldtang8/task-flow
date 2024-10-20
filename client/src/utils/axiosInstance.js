@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { logout } from '../context/auth.context';
 
 const axiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}`,
@@ -14,4 +13,4 @@ axiosInstance.interceptors.request.use((config) => {
   return config
 });
 
-export default axiosInstance
+export default axiosInstance;
