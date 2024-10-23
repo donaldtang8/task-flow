@@ -1,13 +1,16 @@
-import { useAuth } from '@/context/auth.context';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import router from 'next/router';
-import React, { useEffect, useState } from 'react';
+
+import { useAuth } from '@/context/auth.context';
+import { login } from '@/service/auth.service';
+import { AuthActionTypes } from '@/reducer/auth.reducer';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const { isAuthenticated, login } = useAuth();
+  const { state: { isAuthenticated }, dispatch } = useAuth();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -18,9 +21,16 @@ const Login = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      await login({
+      const res = await login({
         username: username,
         password: password
+      });
+      dispatch({
+        type: AuthActionTypes.AUTH_SUCCESS,
+        payload: {
+          user: res.data.user,
+          token: res.data.accessToken
+        }
       })
     } catch (error) {
       setErrorMessage('Invalid email or password');

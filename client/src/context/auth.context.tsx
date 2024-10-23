@@ -1,21 +1,18 @@
-import { createContext, useState, useEffect, useContext } from 'react';
-import axiosInstance from '@/utils/axiosInstance';
-import { AuthContextType } from '@/types/auth.types';
-import { User } from '@/types/user.types';
+import { createContext, useEffect, useContext, useReducer, Dispatch } from 'react';
+import { AuthReducer, initialState, AuthState, AuthActions } from '@/reducer/auth.reducer';
+
+type AuthContextType = {
+  state: AuthState,
+  dispatch: Dispatch<AuthActions>
+}
 
 const AuthContext = createContext<AuthContextType>({
-  user: null,
-  token: null,
-  isAuthenticated: false,
-  register: async () => { },
-  login: async () => { },
-  logout: () => { },
+  state: initialState,
+  dispatch: () => { }
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [state, dispatch] = useReducer(AuthReducer, initialState);
 
   // load user details and token from local storage on initial render
   useEffect(() => {
@@ -23,49 +20,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const storedUser = localStorage.getItem('user');
 
     if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
+      dispatch({
+        type: 'AUTH_SUCCESS',
+        payload: {
+          token: storedToken,
+          user: JSON.parse(storedUser)
+        }
+      });
+      console.log(state)
     }
   }, []);
 
-  const register = async (credentials: any) => {
-    try {
-      const res: any = await axiosInstance.post(`/auth/signup`, credentials);
-      localStorage.setItem('token', res.data.accessToken);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      setToken(res.data.token);
-      setUser(res.data.user);
-      setIsAuthenticated(true);
-    } catch (error: any) {
-      throw error;
-    }
-  }
-
-  const login = async (credentials: any) => {
-    try {
-      const res: any = await axiosInstance.post(`/auth/login`, credentials);
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      setToken(res.data.token);
-      setUser(res.data.user);
-      setIsAuthenticated(true);
-    } catch (error: any) {
-      throw error;
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    setToken(null);
-    setIsAuthenticated(false);
-  };
-
   return (
     <AuthContext.Provider
-      value={{ user, token, isAuthenticated, register, login, logout }}
+      value={{ state, dispatch }}
     >
       {children}
     </AuthContext.Provider>

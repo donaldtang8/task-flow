@@ -1,9 +1,18 @@
 import { useAuth } from "@/context/auth.context";
+import { AuthActionTypes } from "@/reducer/auth.reducer";
+import { logout } from "@/service/auth.service";
 import React, { useState } from "react";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
+  const { state: { isAuthenticated }, dispatch } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    dispatch({
+      type: AuthActionTypes.LOGOUT
+    });
+  }
 
   return (
     <header className={`flex w-full items-center bg-white dark:bg-dark`}>
@@ -44,7 +53,7 @@ const Navbar = () => {
             </div>
             {
               isAuthenticated
-                ? <div className="hidden justify-end pr-16 sm:flex lg:pr-0" onClick={() => logout()}>
+                ? <div className="hidden justify-end pr-16 sm:flex lg:pr-0" onClick={handleLogout}>
                   Logout
                 </div>
                 : <div className="hidden justify-end pr-16 sm:flex lg:pr-0">

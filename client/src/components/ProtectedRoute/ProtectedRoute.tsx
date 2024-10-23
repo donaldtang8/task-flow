@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 
 const withProtectedRoute = (WrappedComponent: React.FC) => {
     return (props: any) => {
-        const { isAuthenticated } = useAuth();
+        const { state: { isAuthenticated } } = useAuth();
         const router = useRouter();
 
         useEffect(() => {

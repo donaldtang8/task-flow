@@ -2,6 +2,8 @@ import { useAuth } from "@/context/auth.context";
 import Link from "next/link";
 import router from "next/router";
 import React, { useEffect, useState } from 'react';
+import { register } from '@/service/auth.service';
+import { AuthActionTypes } from "@/reducer/auth.reducer";
 
 const Register = () => {
   const [firstName, setFirstName] = useState('');
@@ -11,13 +13,13 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const { isAuthenticated, register } = useAuth();
+  const { state, dispatch } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (state.isAuthenticated) {
       router.push('/');
     }
-  }, [isAuthenticated])
+  }, [state.isAuthenticated])
 
   const validatePasswords = () => {
     if (password !== confirmPassword) {
@@ -31,7 +33,7 @@ const Register = () => {
     event.preventDefault();
     if (validatePasswords()) {
       try {
-        await register({
+        const res = await register({
           firstName: firstName,
           lastName: lastName,
           username: username,
@@ -39,7 +41,13 @@ const Register = () => {
           password: password,
           confirmPassword: confirmPassword
         });
-        router.push('/');
+        dispatch({
+          type: AuthActionTypes.AUTH_SUCCESS,
+          payload: {
+            user: res.data.user,
+            token: res.data.accessToken
+          }
+        })
       } catch (error: any) {
         setErrorMessage(error.response.data.message);
       }
