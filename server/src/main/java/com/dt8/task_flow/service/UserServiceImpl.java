@@ -37,10 +37,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("No user found"));
     }
 
-    @Override
-    public List<Project> getProjectsByUserId(long userId) {
-        return userRepository.findProjectsByUserId(userId);
-    }
+//    @Override
+//    public List<Project> getProjectsByUserId(long userId) {
+//        return userRepository.findProjectsByUserId(userId);
+//    }
 
     @Override
     @Transactional

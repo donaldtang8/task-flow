@@ -41,16 +41,37 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
+    @GetMapping("/owned")
+    public ResponseEntity<List<ProjectDto>> getMyOwnedProjects() {
+        User user = userService.getCurrentUser();
+        List<Project> projects = projectService.getProjectsByOwnerId(user.getId());
+        return ResponseEntity.ok(
+                projects.stream()
+                .map(projectMapper::toProjectDto)
+                .collect(Collectors.toList())
+        );
+    }
+
+    @GetMapping("/user/me")
+    public ResponseEntity<List<ProjectDto>> getMyProjects() {
+        User user = userService.getCurrentUser();
+        List<Project> projects = projectService.getProjectsByUserId(user.getId());
+        return ResponseEntity.ok(
+                projects.stream()
+                .map(projectMapper::toProjectDto)
+                .collect(Collectors.toList())
+        );
+    }
+
     @GetMapping("/user/{id}")
     public ResponseEntity<List<ProjectDto>> getProjectsByUserId(@PathVariable long id) {
         User user = userService.getCurrentUser();
-        if (user.getRole().toString().equals(WebSecurityConfig.ADMIN) || user.getId() != id) {
+        if (!user.getRole().toString().equals(WebSecurityConfig.ADMIN) && user.getId() != id) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        List<Project> usersProjects = userService.getProjectsByUserId(id);
-        usersProjects.addAll(projectService.getProjectsByOwnerId(id));
+        List<Project> projects = projectService.getProjectsByUserId(id);
         return ResponseEntity.ok(
-                usersProjects.stream()
+                projects.stream()
                 .map(projectMapper::toProjectDto)
                 .collect(Collectors.toList())
         );

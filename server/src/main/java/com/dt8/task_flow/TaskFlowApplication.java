@@ -57,7 +57,7 @@ public class TaskFlowApplication {
 
 	private void getProjectsByUserId(ProjectService projectService, long userId) {
 		System.out.println("Getting projects for user: " + userId);
-		List<Project> projects = projectService.getProjectsByUserId(userId, true);
+		List<Project> projects = projectService.getProjectsByUserId(userId);
 		for (Project p: projects) {
 			System.out.println(p.getTitle());
 		}
@@ -66,6 +66,7 @@ public class TaskFlowApplication {
 	private void createNewUserAndAddToProject(UserService userService, ProjectService projectService) {
 		User newUser = new User("user1@email.com", "Moo", "Deng", "user1", "test123", UserRole.USER);
 		userService.createUser(newUser);
+		projectService.addUserToProjectById(1, newUser.getId());
 		projectService.addUserToProjectById(2, newUser.getId());
 		Project newProject = new Project("moo deng's project", "moo deng is the best");
 		newProject.setOwner(newUser);

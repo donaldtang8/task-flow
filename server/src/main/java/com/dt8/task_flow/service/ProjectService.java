@@ -10,7 +10,7 @@ public interface ProjectService {
 
     List<Project> getProjectsByOwnerId(long ownerId);
 
-    List<Project> getProjectsByUserId(long userId, boolean includeOwned);
+    List<Project> getProjectsByUserId(long userId);
 
     Project createProject(Project project);
 
