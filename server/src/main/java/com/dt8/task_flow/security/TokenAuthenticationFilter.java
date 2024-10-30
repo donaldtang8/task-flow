@@ -1,5 +1,6 @@
 package com.dt8.task_flow.security;
 
+import com.dt8.task_flow.exception.ForbiddenRequestException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +43,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     });
         } catch (Exception e) {
-            throw new RuntimeException("Cannot set user authentication");
+            System.out.println("Cannot set user authentication");
         }
         chain.doFilter(request, response);
     }
