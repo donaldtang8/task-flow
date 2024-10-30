@@ -31,15 +31,12 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<Project> getProjectsByUserId(long userId, boolean includeOwned) {
-        List<Project> projectList = new ArrayList<>();
+    public List<Project> getProjectsByUserId(long userId) {
+        List<Project> projects = new ArrayList<>();
         if (userService.validateUserById(userId)) {
-            projectList.addAll(userRepository.findProjectsByUserId(userId));
+            projects.addAll(userRepository.findProjectsByUserId(userId));
         }
-        if (includeOwned) {
-            projectList.addAll(getProjectsByOwnerId(userId));
-        }
-        return projectList;
+        return projects;
     }
 
     @Override
