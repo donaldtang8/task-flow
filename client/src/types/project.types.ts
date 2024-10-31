@@ -12,10 +12,3 @@ export type Project = {
     users: User[],
     tasks: Task[]
 }
-
-export type ProjectContextType = {
-    projects: Project[],
-    project: Project | null;
-    getProjects: () => Promise<void>;
-    getProject: (id: string) => Promise<void>;
-}

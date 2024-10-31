@@ -1,36 +1,22 @@
-import { createContext, useContext, useState } from 'react';
-import axiosInstance from '@/utils/axiosInstance';
-import { Project, ProjectContextType } from '@/types/project.types';
+import { createContext, Dispatch, useContext, useReducer } from 'react';
+import { initialState, ProjectReducer, ProjectState, ProjectActions } from '@/reducer/project.reducer';
+
+type ProjectContextType = {
+    state: ProjectState,
+    dispatch: Dispatch<ProjectActions>
+}
 
 const ProjectContext = createContext<ProjectContextType>({
-    projects: [],
-    project: null,
-    getProjects: async () => { },
-    getProject: async () => { }
+    state: initialState,
+    dispatch: () => { }
 });
 
 export const ProjectProvider = ({ children }: { children: React.ReactNode }) => {
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [project, setProject] = useState<Project | null>(null);
-
-    const getProjects = async () => {
-        const res = await axiosInstance.get('/projects');
-        setProjects(res.data);
-    };
-
-    const getProject = async (id: string) => {
-        const res = await axiosInstance.get(`/projects/${id}`);
-        setProject(res.data);
-    };
+    const [state, dispatch] = useReducer(ProjectReducer, initialState)
 
     return (
         <ProjectContext.Provider
-            value={{
-                projects,
-                project,
-                getProjects,
-                getProject
-            }}
+            value={{ state, dispatch }}
         >
             {children}
         </ProjectContext.Provider>

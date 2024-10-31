@@ -1,5 +1,5 @@
-import { createContext, useEffect, useContext, useReducer, Dispatch } from 'react';
-import { AuthReducer, initialState, AuthState, AuthActions } from '@/reducer/auth.reducer';
+import { createContext, useEffect, useContext, useReducer, Dispatch, useState } from 'react';
+import { AuthReducer, initialState, AuthState, AuthActions, AuthActionTypes } from '@/reducer/auth.reducer';
 
 type AuthContextType = {
   state: AuthState,
@@ -13,23 +13,43 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(AuthReducer, initialState);
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<string | null>(null);
 
   // load user details and token from local storage on initial render
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-
-    if (storedToken && storedUser) {
+    if (token && user) {
       dispatch({
-        type: 'AUTH_SUCCESS',
+        type: AuthActionTypes.AUTH_SUCCESS,
         payload: {
-          token: storedToken,
-          user: JSON.parse(storedUser)
+          token: token,
+          user: user
         }
       });
-      console.log(state)
+    } else {
+      dispatch({
+        type: AuthActionTypes.AUTH_FAIL
+      })
     }
-  }, []);
+  }, [token, user]);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    setToken(storedToken);
+    setUser(storedUser);
+  }, [])
+
+  useEffect(() => {
+    function handleChangeStorage() {
+      setToken(JSON.parse(localStorage.getItem('token') || '{}'));
+      setUser(JSON.parse(localStorage.getItem('user') || '{}'));
+    }
+    window.addEventListener('storage', handleChangeStorage);
+    return () => {
+      window.removeEventListener('storage', handleChangeStorage);
+    }
+  }, [])
 
   return (
     <AuthContext.Provider
