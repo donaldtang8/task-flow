@@ -4,16 +4,16 @@ import React, { useEffect } from "react";
 
 const withProtectedRoute = (WrappedComponent: React.FC) => {
     return (props: any) => {
-        const { state: { isAuthenticated } } = useAuth();
+        const { state } = useAuth();
         const router = useRouter();
 
         useEffect(() => {
-            if (!isAuthenticated) {
+            if (!state.isAuthenticated) {
                 router.push('/login');
             }
-        }, [isAuthenticated, router]);
+        }, [state.isAuthenticated, router]);
 
-        return isAuthenticated ? <WrappedComponent {...props} /> : null;
+        return state.isAuthenticated ? <WrappedComponent {...props} /> : null;
     };
 };
 

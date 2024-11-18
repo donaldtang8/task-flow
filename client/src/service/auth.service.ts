@@ -14,9 +14,9 @@ export const register = async (credentials: any) => {
 export const login = async (credentials: any) => {
     try {
         const res: any = await axiosInstance.post(`/auth/login`, credentials);
-        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('token', res.data.accessToken);
         localStorage.setItem('user', JSON.stringify(res.data.user));
-        return res.data;
+        return res;
     } catch (error: any) {
         throw error;
     }

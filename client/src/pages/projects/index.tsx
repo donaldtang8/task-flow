@@ -1,17 +1,27 @@
 import withProtectedRoute from "@/components/ProtectedRoute/ProtectedRoute";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useProject } from "@/context/project.context";
+import { getOwnedProjects, getMyProjects } from "@/service/project.service";
+import { ProjectActionTypes } from "@/reducer/project.reducer";
 
 const Projects = (): React.ReactElement => {
-    const { getProjects, projects } = useProject();
+    const { state, dispatch } = useProject();
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getProjects();
-    }, [getProjects]);
-
-    useEffect(() => {
-
-    })
+        const fetchOwnedProjects = getOwnedProjects();
+        const fetchMyProjects = getMyProjects();
+        Promise.all([fetchOwnedProjects, fetchMyProjects]).then((response) => {
+            setLoading(false)
+        }).catch((error) => {
+            dispatch({
+                type: ProjectActionTypes.PROJECT_ERROR,
+                payload: {
+                    error: 'Error fetching projects'
+                }
+            });
+        })
+    }, [getOwnedProjects, getMyProjects]);
 
     return (
         <div>
